@@ -75,7 +75,7 @@
 
         <script>
 
-            var sphereShape, sphereBody, world, physicsMaterial, walls=[], balls=[], ballMeshes=[], boxes=[], boxMeshes=[];
+            var sphereShape, sphereBody, world, physicsMaterial, walls=[], balls=[], ballMeshes=[], boxes=[], boxMeshes=[], materials=[], textures=[];
 
             var camera, scene, renderer;
             var geometry, material, mesh;
@@ -85,7 +85,36 @@
             var instructions = document.getElementById( 'instructions' );
 
             var loader = new THREE.TextureLoader();
-            var balltexture = loader.load("images/ball15.png"); // *// 
+            var balltexture1 = loader.load("images/ball1.jpg"); 
+            var balltexture2 = loader.load("images/ball2.png"); 
+            var balltexture3 = loader.load("images/ball3.jpg"); 
+            var balltexture4 = loader.load("images/ball4.jpg"); 
+            var balltexture5 = loader.load("images/ball5.jpg"); 
+            var balltexture6 = loader.load("images/ball6.jpg"); 
+            var balltexture7 = loader.load("images/ball7.jpg"); 
+            var balltexture8 = loader.load("images/ball8.jpg"); 
+            var balltexture9 = loader.load("images/ball9.jpg"); 
+            var balltexture10 = loader.load("images/ball10.png"); 
+            var balltexture11 = loader.load("images/ball11.jpg"); 
+            var balltexture12 = loader.load("images/ball12.jpg"); 
+            var balltexture13 = loader.load("images/ball13.png"); 
+            var balltexture14 = loader.load("images/ball14.png"); 
+            var balltexture15 = loader.load("images/ball15.png");
+            textures.push(balltexture1) 
+            textures.push(balltexture2) 
+            textures.push(balltexture3) 
+            textures.push(balltexture4) 
+            textures.push(balltexture5) 
+            textures.push(balltexture6) 
+            textures.push(balltexture7) 
+            textures.push(balltexture8) 
+            textures.push(balltexture9) 
+            textures.push(balltexture10) 
+            textures.push(balltexture11) 
+            textures.push(balltexture12) 
+            textures.push(balltexture13) 
+            textures.push(balltexture14) 
+            textures.push(balltexture15) 
 
             var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
@@ -268,39 +297,41 @@
                 scene.add( mesh );
 
 
-                
-                var ballmaterial = new THREE.MeshPhongMaterial({
-                    color: 0xaaaaaa,
-                    specular: 0x333333,
-                    shininess: 15,
-                    map: balltexture		  
-                });	
+                //Balls Materials
+
+                for(var i=0; i<textures.length; i++){
+                    var ballmaterial = new THREE.MeshPhongMaterial({
+                        color: 0xaaaaaa,
+                        specular: 0x333333,
+                        shininess: 15,
+                        map: textures[i]		 
+                    });
+                    materials.push(ballmaterial)
+                }
+                //End balls Materials
 
 
-
-                // Create single sphere
-                var ballShape = new CANNON.Sphere(0.2);
-                var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
-                var shootVelo = 15;
-                var projector = new THREE.Projector();
-                
-                var ballBody = new CANNON.Body({ mass: 1 });
-                ballBody.addShape(ballShape);
-                var ballMesh = new THREE.Mesh( ballGeometry, ballmaterial );
-                world.addBody(ballBody);
-                ballBody.position.x += 10
-                scene.add(ballMesh);
-                balls.push(ballBody);
-                ballMeshes.push(ballMesh);
+                for(var i=0; i<materials.length; i++){
+                    // Create single sphere 1
+                    var ballShape = new CANNON.Sphere(0.2);
+                    var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
+                    var shootVelo = 15;
+                    var projector = new THREE.Projector();
+                    var ballBody = new CANNON.Body({ mass: 1 });
+                    ballBody.addShape(ballShape);
+                    var ballMesh = new THREE.Mesh( ballGeometry, materials[i] );
+                    world.addBody(ballBody);
+                    scene.add(ballMesh);
+                    balls.push(ballBody);
+                    ballMeshes.push(ballMesh);
+                }
 
                 renderer = new THREE.WebGLRenderer();
                 renderer.shadowMapEnabled = true;
                 renderer.shadowMapSoft = true;
                 renderer.setSize( window.innerWidth, window.innerHeight );
                 renderer.setClearColor( scene.fog.color, 1 );
-
                 document.body.appendChild( renderer.domElement );
-
                 window.addEventListener( 'resize', onWindowResize, false );
             }
 
