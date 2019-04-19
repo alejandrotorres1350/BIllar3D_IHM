@@ -77,10 +77,13 @@
 
             var sphereShape, sphereBody, world, physicsMaterial, walls=[], balls=[], ballMeshes=[], boxes=[], boxMeshes=[], materials=[], textures=[];
 
+            //Table variable
             var table=[], tableMesh=[], tableMaterial;
-            var cuboidOneDimensions = new CANNON.Vec3(30, 5, 3);
+            var cuboidOneDimensions = new CANNON.Vec3(0.5, 0.5, 10);
             var tableLoader = new THREE.TextureLoader();
             var tableTexture = tableLoader.load("images/billard-table.jpg");
+
+            var cuboidThreeDimensions = new CANNON.Vec3(16, 0.5, 0.5);
 
             var camera, scene, renderer;
             var geometry, material, mesh;
@@ -256,14 +259,37 @@
                 world.addBody(groundBody);
 
                 // Create a Cuboid
-                var cuboidMass = 20;
-                var cuboidOneShape = new CANNON.Box(cuboidMass, cuboidOneDimensions);
+                var cuboidMass = 150;
+                var cuboidOneShape = new CANNON.Box(cuboidOneDimensions);
                 var cuboidOneBody = new CANNON.Body({ mass: cuboidMass });
-                cuboidOneBody.position.set(10,10,0);
                 cuboidOneBody.addShape(cuboidOneShape);
                 cuboidOneBody.position.set(10,10,0);
                 table.push(cuboidOneBody);
                 world.addBody(cuboidOneBody);
+
+                //Create a Cuboid
+                var cuboidTwoShape = new CANNON.Box(cuboidOneDimensions);
+                var cuboidTwoBody = new CANNON.Body({ mass: cuboidMass });
+                cuboidTwoBody.addShape(cuboidTwoShape);
+                cuboidTwoBody.position.set(-20,10,0);
+                table.push(cuboidTwoBody);
+                world.addBody(cuboidTwoBody);
+
+                //Create a Cuboid
+                var cuboidThreeShape = new CANNON.Box(cuboidThreeDimensions);
+                var cuboidThreeBody = new CANNON.Body({ mass: cuboidMass });
+                cuboidThreeBody.addShape(cuboidThreeShape);
+                cuboidThreeBody.position.set(-5,0,10.5);
+                table.push(cuboidThreeBody);
+                world.addBody(cuboidThreeBody);
+
+                //Create a Cuboid
+                var cuboidFourShape = new CANNON.Box(cuboidThreeDimensions);
+                var cuboidFourBody = new CANNON.Body({ mass: cuboidMass });
+                cuboidFourBody.addShape(cuboidFourShape);
+                cuboidFourBody.position.set(-5,0,-10.5);
+                table.push(cuboidFourBody);
+                world.addBody(cuboidFourBody);
             }
 
             function init() {
@@ -301,10 +327,10 @@
                 scene.add( controls.getObject() );
 
                 // floor
-                geometry = new THREE.PlaneGeometry( 300, 300, 50, 50 );
+                geometry = new THREE.PlaneGeometry( 50 , 25, 50, 50 );
                 geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 
-                material = new THREE.MeshLambertMaterial( { color: 0xdddddd } );
+                material = new THREE.MeshLambertMaterial( { color: 0xdddddd, map: tableTexture } );
 
                 mesh = new THREE.Mesh( geometry, material );
                 mesh.castShadow = true;
@@ -349,11 +375,30 @@
                 }
 
                 //Table
-                var cuboidMaterial = new THREE.MeshLambertMaterial({ map: tableTexture});
-                var cubiodOneGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x, cuboidOneDimensions.y, cuboidOneDimensions.z);
+                //Cuboid
+                var cuboidMaterial = new THREE.MeshBasicMaterial({ map: tableTexture});
+                var cubiodOneGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x*2, cuboidOneDimensions.y*2, cuboidOneDimensions.z*2);
                 var cuboidOneMesh = new THREE.Mesh(cubiodOneGeometry, cuboidMaterial);
                 tableMesh.push(cuboidOneMesh);
                 scene.add(cuboidOneMesh);
+
+                //Cuboid
+                var cubiodTwoGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x*2, cuboidOneDimensions.y*2, cuboidOneDimensions.z*2);
+                var cuboidTwoMesh = new THREE.Mesh(cubiodTwoGeometry, cuboidMaterial);
+                tableMesh.push(cuboidTwoMesh);
+                scene.add(cuboidTwoMesh);
+
+                //Cuboid
+                var cubiodThreeGeometry = new THREE.BoxGeometry(cuboidThreeDimensions.x*2, cuboidThreeDimensions.y*2, cuboidThreeDimensions.z*2);
+                var cuboidThreeMesh = new THREE.Mesh(cubiodThreeGeometry, cuboidMaterial);
+                tableMesh.push(cuboidThreeMesh);
+                scene.add(cuboidThreeMesh);
+
+                //Cuboid
+                var cubiodFourGeometry = new THREE.BoxGeometry(cuboidThreeDimensions.x*2, cuboidThreeDimensions.y*2, cuboidThreeDimensions.z*2);
+                var cuboidFourMesh = new THREE.Mesh(cubiodFourGeometry, cuboidMaterial);
+                tableMesh.push(cuboidFourMesh);
+                scene.add(cuboidFourMesh);
 
                 renderer = new THREE.WebGLRenderer();
                 renderer.shadowMapEnabled = true;
@@ -383,7 +428,7 @@
                     }
 
                     for(var io=0; io<table.length; io++){
-                        tableMesh[i].position.copy(table[i].position);
+                        tableMesh[io].position.copy(table[io].position);
                     }
                 }
 
