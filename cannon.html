@@ -77,6 +77,11 @@
 
             var sphereShape, sphereBody, world, physicsMaterial, walls=[], balls=[], ballMeshes=[], boxes=[], boxMeshes=[], materials=[], textures=[];
 
+            var table=[], tableMesh=[], tableMaterial;
+            var cuboidOneDimensions = new CANNON.Vec3(30, 5, 3);
+            var tableLoader = new THREE.TextureLoader();
+            var tableTexture = tableLoader.load("images/billard-table.jpg");
+
             var camera, scene, renderer;
             var geometry, material, mesh;
             var controls,time = Date.now();
@@ -249,6 +254,16 @@
                 groundBody.addShape(groundShape);
                 groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
                 world.addBody(groundBody);
+
+                // Create a Cuboid
+                var cuboidMass = 20;
+                var cuboidOneShape = new CANNON.Box(cuboidMass, cuboidOneDimensions);
+                var cuboidOneBody = new CANNON.Body({ mass: cuboidMass });
+                cuboidOneBody.position.set(10,10,0);
+                cuboidOneBody.addShape(cuboidOneShape);
+                cuboidOneBody.position.set(10,10,0);
+                table.push(cuboidOneBody);
+                world.addBody(cuboidOneBody);
             }
 
             function init() {
@@ -333,6 +348,13 @@
                     x++
                 }
 
+                //Table
+                var cuboidMaterial = new THREE.MeshLambertMaterial({ map: tableTexture});
+                var cubiodOneGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x, cuboidOneDimensions.y, cuboidOneDimensions.z);
+                var cuboidOneMesh = new THREE.Mesh(cubiodOneGeometry, cuboidMaterial);
+                tableMesh.push(cuboidOneMesh);
+                scene.add(cuboidOneMesh);
+
                 renderer = new THREE.WebGLRenderer();
                 renderer.shadowMapEnabled = true;
                 renderer.shadowMapSoft = true;
@@ -358,6 +380,10 @@
                     for(var i=0; i<balls.length; i++){
                         ballMeshes[i].position.copy(balls[i].position);
                         ballMeshes[i].quaternion.copy(balls[i].quaternion);
+                    }
+
+                    for(var io=0; io<table.length; io++){
+                        tableMesh[i].position.copy(table[i].position);
                     }
                 }
 
