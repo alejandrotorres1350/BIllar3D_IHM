@@ -219,10 +219,10 @@
                 var solver = new CANNON.GSSolver();
 
                 world.defaultContactMaterial.contactEquationStiffness = 1e9;
-                world.defaultContactMaterial.contactEquationRelaxation = 4;
+                world.defaultContactMaterial.contactEquationRelaxation = 2;
 
                 solver.iterations = 7;
-                solver.tolerance = 0.1;
+                solver.tolerance = 1;
                 var split = true;
                 if(split)
                     world.solver = new CANNON.SplitSolver(solver);
@@ -235,12 +235,10 @@
                 // Create a slippery material (friction coefficient = 0.0)
                 physicsMaterial = new CANNON.Material("slipperyMaterial");
                 var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
-                                                                        physicsMaterial,
-                                                                        0.0, // friction coefficient
-                                                                        0.3  // restitution
+                                                                        physicsMaterial,{friction: 0.9, restitution: 0.3}
                                                                         );
                 // We must add the contact materials to the world
-                world.addContactMaterial(physicsContactMaterial);
+                //world.addContactMaterial(physicsContactMaterial);
 
                 // Create a sphere
                 var mass = 5, radius = 1.3;
@@ -360,7 +358,7 @@
                         var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
                         var shootVelo = 15;
                         var projector = new THREE.Projector();
-                        var ballBody = new CANNON.Body({ mass: 1 });
+                        var ballBody = new CANNON.Body({ mass: 1, angularDamping: 0.5});
                         ballBody.addShape(ballShape);
                         ballBody.position.x += j/2.5
                         ballBody.position.z += x/2.5
