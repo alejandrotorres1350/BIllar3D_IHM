@@ -356,7 +356,7 @@
                 for(var i=0; i<5; i++){
                     for(var j = 0; j < x; j++ ){
                         // Create single sphere 1
-                        var ballShape = new CANNON.Sphere(0.2);
+                        var ballShape = new CANNON.Sphere(0.2   );
                         var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
                         var shootVelo = 50;
                         var projector = new THREE.Projector();
@@ -414,20 +414,28 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize( window.innerWidth, window.innerHeight );
             }
-
+            
             var dt = 1/60;
+            var timer = 0
+            let maxTimeStopped = 0.1;
             function animate() {
                 requestAnimationFrame( animate );
                 if(controls.enabled){
                     world.step(dt);
-
+                    let cont = 0;
                     // Update ball positions
                     for(var i=0; i<balls.length; i++){
                         balls[i].position.y = 0.2
                         ballMeshes[i].position.copy(balls[i].position);
                         ballMeshes[i].quaternion.copy(balls[i].quaternion);
+                        if(Math.abs(balls[i].angularVelocity.x) < maxTimeStopped && Math.abs(balls[i].angularVelocity.y) < maxTimeStopped 
+                            && Math.abs(balls[i].angularVelocity.z) < maxTimeStopped && time%60 == 0){
+                                ++cont;
+                        }
                     }
-
+                    if(cont == balls.length){
+                        console.log("Stopped")
+                    }
                     for(var io=0; io<table.length; io++){
                         tableMesh[io].position.copy(table[io].position);
                     }
@@ -436,7 +444,17 @@
                 controls.update( Date.now() - time );
                 renderer.render( scene, camera );
                 time = Date.now();
-
+                /*var mm = true;
+                if(timer%60 == 0){
+                    for(var i=0; i<balls.length; i++){
+                            if(balls[i].angularVelocity.z > 0.01)
+                                mm = false
+                        }
+                    if(mm){
+                        console.log("All balls are stopped")
+                    }
+                }*/
+                ++timer;
             }
 
 
@@ -466,7 +484,7 @@
                         var x = sphereBody.position.x;
                         var y = 0;//sphereBody.position.y;
                         var z = sphereBody.position.z;
-                        var ballBody = new CANNON.Body({ mass: 5 });
+                        var ballBody = new CANNON.Body({ mass: 5 , angularDamping: 0.6});
                         ballBody.addShape(ballShape);
                         var ballMesh = new THREE.Mesh( ballGeometry, whiteballmaterial );
                         world.addBody(ballBody);
@@ -486,7 +504,7 @@
                         z += shootDirection.z * (sphereShape.radius*1.02 + ballShape.radius);
                         ballBody.position.set(x,y,z);
                         ballMesh.position.set(x,y,z);
-                        //first = true
+                        first = true
                     }
                     else{
 
