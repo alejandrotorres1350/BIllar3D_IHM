@@ -62,13 +62,15 @@
         <script src="libs/cannon.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
         <script src="libs/PointerLockControls.js"></script>
+        <script src="libs/StereoEffect.js"></script>
+        <script src="libs/DeviceOrientationControls.js"></script>
 
         <div id="blocker">
 
             <div id="instructions">
                 <span style="font-size:40px">Click to play</span>
                 <br />
-                (W,A,S,D = Move, SPACE = Jump, MOUSE = Look, CLICK = Shoot)
+                (Click = Shoot)
             </div>
 
         </div>
@@ -87,7 +89,7 @@
 
             var camera, scene, renderer;
             var geometry, material, mesh;
-            var controls,time = Date.now();
+            var controls, scontrols,time = Date.now();
 
             var blocker = document.getElementById( 'blocker' );
             var instructions = document.getElementById( 'instructions' );
@@ -142,13 +144,9 @@
 
                     } else {
 
-                        controls.enabled = false;
+                        controls.enabled = true;
 
-                        blocker.style.display = '-webkit-box';
-                        blocker.style.display = '-moz-box';
-                        blocker.style.display = 'box';
-
-                        instructions.style.display = '';
+                        blocker.style.display = 'none';
 
                     }
 
@@ -210,7 +208,7 @@
 
             initCannon();
             init();
-            animate();
+            
 
             function initCannon(){
                 // Setup our world
@@ -243,7 +241,7 @@
                 //world.addContactMaterial(physicsContactMaterial);
 
                 // Create a sphere
-                var mass = 5, radius = 1.3;
+                var mass = 5, radius = 0.2;
                 sphereShape = new CANNON.Sphere(radius);
                 sphereBody = new CANNON.Body({ mass: mass, angularDamping: 0.6});
                 sphereBody.addShape(sphereShape);
@@ -296,6 +294,11 @@
 
             function init() {
 
+                let effect;
+                var raycaster = new THREE.Raycaster();
+                var mouse = new THREE.Vector2();
+                var aspect = window.innerWidth / window.innerHeight;
+
                 camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
                 scene = new THREE.Scene();
@@ -327,6 +330,8 @@
 
                 controls = new PointerLockControls( camera , sphereBody );
                 scene.add( controls.getObject() );
+
+                scontrols = new THREE.DeviceOrientationControls( camera );
 
                 // floor
                 geometry = new THREE.PlaneGeometry( 50 , 25, 50, 50 );
@@ -446,6 +451,7 @@
                 }
 
                 controls.update( Date.now() - time );
+                scontrols.update()
                 renderer.render( scene, camera );
                 time = Date.now();
                 /*var mm = true;
@@ -460,6 +466,8 @@
                 }*/
                 ++timer;
             }
+
+            animate();
 
 
             var ballShape = new CANNON.Sphere(0.2);
