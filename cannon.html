@@ -16,16 +16,24 @@
                 font-family: arial;
             }
 
+            #myProgress {
+                width: 100%;
+                background-color:#000000;
+            }
+
+            #myBar {
+                width: 1%;
+                height: 30px;
+                background-color: #4CAF50;
+            }
+
             #blocker {
-
                 position: absolute;
-
                 width: 100%;
                 height: 100%;
-
                 background-color: rgba(0,0,0,0.5);
-
             }
+            
 
             #instructions {
 
@@ -58,7 +66,10 @@
         </style>
     </head>
     <body>
-        <!--<script src="libs/Three.js"></script>-->
+        <div id="myProgress">
+                <div id="myBar"></div>
+        </div>
+
         <script src="libs/cannon.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
         <script src="libs/PointerLockControls.js"></script>
@@ -68,7 +79,7 @@
         <div id="blocker">
 
             <div id="instructions">
-                <span style="font-size:40px">Click to play</span>
+                <span style="font-size:40px">Are you Ready?</span>
                 <br />
                 (Click = Shoot)
             </div>
@@ -110,22 +121,22 @@
             var balltexture13 = loader.load("images/ball13.png"); 
             var balltexture14 = loader.load("images/ball14.png"); 
             var balltexture15 = loader.load("images/ball15.png");
-            var whiteballtexture = loader.load("images/whiteball.png")
-            textures.push(balltexture1) 
-            textures.push(balltexture2) 
-            textures.push(balltexture3) 
-            textures.push(balltexture4) 
-            textures.push(balltexture5) 
-            textures.push(balltexture6) 
-            textures.push(balltexture7) 
-            textures.push(balltexture8) 
-            textures.push(balltexture9) 
-            textures.push(balltexture10) 
-            textures.push(balltexture11) 
-            textures.push(balltexture12) 
-            textures.push(balltexture13) 
-            textures.push(balltexture14) 
-            textures.push(balltexture15) 
+            var whiteballtexture = loader.load("images/whiteball.png");
+            textures.push(balltexture1); 
+            textures.push(balltexture2); 
+            textures.push(balltexture3); 
+            textures.push(balltexture4); 
+            textures.push(balltexture5); 
+            textures.push(balltexture6); 
+            textures.push(balltexture7); 
+            textures.push(balltexture8); 
+            textures.push(balltexture9); 
+            textures.push(balltexture10); 
+            textures.push(balltexture11); 
+            textures.push(balltexture12); 
+            textures.push(balltexture13); 
+            textures.push(balltexture14); 
+            textures.push(balltexture15);
 
             var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
             var first = false
@@ -259,7 +270,7 @@
                 world.addBody(groundBody);
 
                 // Create a Cuboid
-                var cuboidMass = 1500;
+                var cuboidMass = 500;
                 var cuboidOneShape = new CANNON.Box(cuboidOneDimensions);
                 var cuboidOneBody = new CANNON.Body({ mass: cuboidMass });
                 cuboidOneBody.addShape(cuboidOneShape);
@@ -425,6 +436,7 @@
             var dt = 1/60;
             var timer = 0
             let maxTimeStopped = 0.1;
+            var talbleSides = true
             function animate() {
                 requestAnimationFrame( animate );
                 if(controls.enabled){
@@ -445,9 +457,13 @@
                     if(cont == balls.length){
                         console.log("Stopped")
                     }
-                    for(var io=0; io<table.length; io++){
-                        tableMesh[io].position.copy(table[io].position);
+                    if (talbleSides){
+                        for(var io=0; io<table.length; io++){
+                            tableMesh[io].position.copy(table[io].position);
+                        }
+                        talbleSides = false
                     }
+                    
                 }
 
                 controls.update( Date.now() - time );
@@ -488,27 +504,25 @@
             
             window.addEventListener('mousedown', function(e) {
                 t0 = performance.now();
-                console.log("Init")
+                move(0)
             },false);
 
             window.addEventListener('mouseup', function(e){
                 t1 = performance.now();
-                console.log("Last")
-                var strength = ( (t1 - t0) / 10 ) % 100
-                console.log(strength)
+                var strength = ( (t1 - t0) / 10 ) % 70
+                move(strength)
                 shootBall(strength)                
             },false);
 
             window.addEventListener('touchstart', function(e) {
                 t0 = performance.now();
-                console.log("Init")
+                move(0)
             },false);
 
             window.addEventListener('touchend', function(e){
                 t1 = performance.now();
-                console.log("Last")
-                var strength = ( (t1 - t0) / 10 ) % 100
-                console.log(strength)
+                var strength = ( (t1 - t0) / 10 ) % 70
+                move(strength)
                 shootBall(strength)                
             },false);
 
@@ -585,7 +599,20 @@
                 sphereBody.position.set(x,y,z);
                 first = false
             }
+            function move(strength) {
+                var elem = document.getElementById("myBar");   
+                elem.style.width = (strength * 100 / 70) + '%'
+                if(strength <= 25){
+                    elem.style.backgroundColor = "#4CAF50"
+                }else if(strength <= 50){
+                    elem.style.backgroundColor = "#FFF22D"
+                }else if(strength > 50){
+                    elem.style.backgroundColor = "#FF0000"
+                }
+            }
 
         </script>
+
+        
     </body>
 </html>
