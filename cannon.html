@@ -93,11 +93,11 @@
 
             //Table variable
             var table=[], tableMesh=[], tableMaterial;
-            var cuboidOneDimensions = new CANNON.Vec3(0.5, 0.5, 10);
+            var cuboidOneDimensions = new CANNON.Vec3(0.2, 0.2, 4.9);
             var tableLoader = new THREE.TextureLoader();
             var tableTexture = tableLoader.load("images/billard-table.jpg");
 
-            var cuboidThreeDimensions = new CANNON.Vec3(16, 0.5, 0.5);
+            var cuboidThreeDimensions = new CANNON.Vec3(6.5, 0.2, 0.2);
 
             var camera, scene, renderer;
             var geometry, material, mesh;
@@ -270,8 +270,6 @@
                 sphereBody.linearDamping = 0.6;
                 world.addBody(sphereBody);
 
-                
-
                 // Create a plane
                 var groundShape = new CANNON.Plane();
                 var groundBody = new CANNON.Body({ mass: 0 });
@@ -279,22 +277,41 @@
                 groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
                 world.addBody(groundBody);
 
+                //FirstWall
                 // Create a Cuboid
                 var cuboidMass = 500;
                 var cuboidOneShape = new CANNON.Box(cuboidOneDimensions);
                 var cuboidOneBody = new CANNON.Body({ mass: cuboidMass, material: groundMaterial });
                 cuboidOneBody.addShape(cuboidOneShape);
-                cuboidOneBody.position.set(10,0,0);
+                cuboidOneBody.position.set(2,0,5.1);
                 table.push(cuboidOneBody);
                 world.addBody(cuboidOneBody);
 
+                // Create a Cuboid
+                var cuboidOneOneShape = new CANNON.Box(cuboidOneDimensions);
+                var cuboidOneOneBody = new CANNON.Body({ mass: cuboidMass });
+                cuboidOneOneBody.addShape(cuboidOneOneShape);
+                cuboidOneOneBody.position.set(2,0,-5.1);
+                table.push(cuboidOneOneBody);
+                world.addBody(cuboidOneOneBody);
+
+
+                //Second Wall
                 //Create a Cuboid
                 var cuboidTwoShape = new CANNON.Box(cuboidOneDimensions);
                 var cuboidTwoBody = new CANNON.Body({ mass: cuboidMass, material: groundMaterial });
                 cuboidTwoBody.addShape(cuboidTwoShape);
-                cuboidTwoBody.position.set(-20,0,0);
+                cuboidTwoBody.position.set(-12,0,5.1);
                 table.push(cuboidTwoBody);
                 world.addBody(cuboidTwoBody);
+
+                //Create a Cuboid
+                var cuboidTwoTwoShape = new CANNON.Box(cuboidOneDimensions);
+                var cuboidTwoTwoBody = new CANNON.Body({ mass: cuboidMass });
+                cuboidTwoTwoBody.addShape(cuboidTwoTwoShape);
+                cuboidTwoTwoBody.position.set(-12,0,-5.1);
+                table.push(cuboidTwoTwoBody);
+                world.addBody(cuboidTwoTwoBody);
 
                 //Create a Cuboid
                 var cuboidThreeShape = new CANNON.Box(cuboidThreeDimensions);
@@ -380,6 +397,8 @@
                 //End balls Materials
 
                 var x, ball = 0
+                var overlaping = 6
+                var overlapingz = -5
                 x = 1
                 for(var i=0; i<5; i++){
                     for(var j = 0; j < x; j++ ){
@@ -390,8 +409,8 @@
                         var projector = new THREE.Projector();
                         var ballBody = new CANNON.Body({ mass: 5, angularDamping: 0.6, material: physicsMaterial});
                         ballBody.addShape(ballShape);
-                        ballBody.position.x += j/2.5
-                        ballBody.position.z += x/2.5
+                        ballBody.position.x += j/2.5 - overlaping
+                        ballBody.position.z += x/2.5 - overlapingz
                         var ballMesh = new THREE.Mesh( ballGeometry, materials[ball] );
                         world.addBody(ballBody);
                         scene.add(ballMesh);
@@ -403,6 +422,7 @@
                 }
 
                 //Table
+                //First Wall
                 //Cuboid
                 var cuboidMaterial = new THREE.MeshBasicMaterial({ map: tableTexture});
                 var cubiodOneGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x*2, cuboidOneDimensions.y*2, cuboidOneDimensions.z*2);
@@ -411,10 +431,23 @@
                 scene.add(cuboidOneMesh);
 
                 //Cuboid
+                var cubiodOneOneGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x*2, cuboidOneDimensions.y*2, cuboidOneDimensions.z*2);
+                var cuboidOneOneMesh = new THREE.Mesh(cubiodOneOneGeometry, cuboidMaterial);
+                tableMesh.push(cuboidOneOneMesh);
+                scene.add(cuboidOneOneMesh);
+
+                //Second Wall
+                //Cuboid
                 var cubiodTwoGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x*2, cuboidOneDimensions.y*2, cuboidOneDimensions.z*2);
                 var cuboidTwoMesh = new THREE.Mesh(cubiodTwoGeometry, cuboidMaterial);
                 tableMesh.push(cuboidTwoMesh);
                 scene.add(cuboidTwoMesh);
+
+                //Cuboid
+                var cubiodTwoTwoGeometry = new THREE.BoxGeometry(cuboidOneDimensions.x*2, cuboidOneDimensions.y*2, cuboidOneDimensions.z*2);
+                var cuboidTwoTwoMesh = new THREE.Mesh(cubiodTwoTwoGeometry, cuboidMaterial);
+                tableMesh.push(cuboidTwoTwoMesh);
+                scene.add(cuboidTwoTwoMesh);
 
                 //Cuboid
                 var cubiodThreeGeometry = new THREE.BoxGeometry(cuboidThreeDimensions.x*2, cuboidThreeDimensions.y*2, cuboidThreeDimensions.z*2);
