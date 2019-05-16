@@ -90,14 +90,15 @@
 
             var sphereShape, sphereBody, world, physicsMaterial, walls=[], balls=[], ballMeshes=[], boxes=[], boxMeshes=[], materials=[], textures=[];
             var groundMaterial;
+            var canShoot = false
 
             //Table variable
             var table=[], tableMesh=[], tableMaterial;
-            var cuboidOneDimensions = new CANNON.Vec3(0.2, 0.2, 4.9);
+            var cuboidOneDimensions = new CANNON.Vec3(0.2, 0.3, 4.8);
             var tableLoader = new THREE.TextureLoader();
             var tableTexture = tableLoader.load("images/billard-table.jpg");
 
-            var cuboidThreeDimensions = new CANNON.Vec3(6.5, 0.2, 0.2);
+            var cuboidThreeDimensions = new CANNON.Vec3(6.5, 0.3, 0.2);
 
             var camera, scene, renderer;
             var geometry, material, mesh;
@@ -258,8 +259,20 @@
                                                     frictionEquationRegularizationTime: 3,
                                                 }
                                                 );
+                var physicsContactTwoMaterial = 
+                    new CANNON.ContactMaterial(physicsMaterial, physicsMaterial,
+                                                {
+                                                    friction: 0.1,
+                                                    restitution: 0.5,
+                                                    contactEquationStiffness: 1e8,
+                                                    contactEquationRelaxation: 3,
+                                                    frictionEquationStiffness: 1e8,
+                                                    frictionEquationRegularizationTime: 3,
+                                                }
+                                                );
                 // We must add the contact materials to the world
                 world.addContactMaterial(physicsContactMaterial);
+                world.addContactMaterial(physicsContactTwoMaterial);
 
                 // Create a sphere
                 var mass = 5, radius = 0.2;
@@ -294,7 +307,6 @@
                 cuboidOneOneBody.position.set(2,0,-5.1);
                 table.push(cuboidOneOneBody);
                 world.addBody(cuboidOneOneBody);
-
 
                 //Second Wall
                 //Create a Cuboid
@@ -496,15 +508,34 @@
                             && Math.abs(balls[i].angularVelocity.z) < maxTimeStopped && time%60 == 0){
                                 ++cont;
                         }
+                        if (balls[i].position.x > 2|| balls[i].position.x < -12
+                            || balls[i].position.z > 10.5|| balls[i].position.z < -10.5){
+                            balls[i].visible = false
+                            ballMeshes[i].visible = false
+                        }
                     }
-                    if(cont == balls.length){
+                    if(Math.abs(sphereBody.angularVelocity.x) < maxTimeStopped && Math.abs(sphereBody.angularVelocity.y) < maxTimeStopped 
+                            && Math.abs(sphereBody.angularVelocity.z) < maxTimeStopped && time%60 == 0){
+                                ++cont;
+                    }            
+                    if(cont == balls.length + 1){
                         console.log("Stopped")
+                        canShoot = true
+                        var elem = document.getElementById("myBar");   
+                        elem.style.width = 100 + '%'
+                        elem.style.backgroundColor = "#4CAF50"
                     }
                     if (talbleSides){
                         for(var io=0; io<table.length; io++){
                             tableMesh[io].position.copy(table[io].position);
                         }
                         talbleSides = false
+                    }
+                    if (sphereBody.position.x > 2|| sphereBody.position.x < -12
+                        || sphereBody.position.z > 10.5|| sphereBody.position.z < -10.5){
+                        sphereBody.angularVelocity.set(0,0,0);
+                        sphereBody.velocity.set(0,0,0);
+                        sphereBody.position.set(-5,5,0);
                     }
                     
                 }
@@ -551,10 +582,12 @@
             },false);
 
             window.addEventListener('mouseup', function(e){
-                t1 = performance.now();
-                var strength = ( (t1 - t0) / 10 ) % 70
-                move(strength)
-                shootBall(strength)                
+                if (canShoot){
+                    t1 = performance.now();
+                    var strength = ( (t1 - t0) / 10 ) % 70
+                    move(strength)
+                    shootBall(strength)
+                }                
             },false);
 
             window.addEventListener('touchstart', function(e) {
@@ -563,10 +596,12 @@
             },false);
 
             window.addEventListener('touchend', function(e){
-                t1 = performance.now();
-                var strength = ( (t1 - t0) / 10 ) % 70
-                move(strength)
-                shootBall(strength)                
+                if (canShoot){    
+                    t1 = performance.now();
+                    var strength = ( (t1 - t0) / 10 ) % 70
+                    move(strength)
+                    shootBall(strength)                
+                }
             },false);
 
             /*window.addEventListener("click",function(e){
@@ -641,6 +676,7 @@
                 z += shootDirection.z * (sphereShape.radius*1.02 + ballShape.radius);
                 sphereBody.position.set(x,y,z);
                 first = false
+                canShoot = false
             }
             function move(strength) {
                 var elem = document.getElementById("myBar");   
