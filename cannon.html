@@ -108,6 +108,7 @@
             var roofDimension = new CANNON.Vec3(60,0.2,60);
 
             var camera, scene, renderer;
+            let effect;
             var geometry, material, mesh;
             var controls, scontrols,time = Date.now();
 
@@ -332,6 +333,28 @@
                 sphereBody.linearDamping = 0.6;
                 world.addBody(sphereBody);
 
+                var x, ball = 0
+                var overlaping = 6
+                var overlapingz = -5
+                x = 1
+                for(var i=0; i<5; i++){
+                    for(var j = 0; j < x; j++ ){
+                        // Create single sphere 1
+                        var ballShape = new CANNON.Sphere(0.2);
+                        var projector = new THREE.Projector();
+                        var ballBody = new CANNON.Body({ mass: 5, angularDamping: 0.6, material: physicsMaterial});
+                        ballBody.addShape(ballShape);
+                        ballBody.position.x += j/2.5 - overlaping
+                        ballBody.position.z += x/2.5 - overlapingz
+                        ballBody.linearDamping = 0.6;
+                        world.addBody(ballBody);                        
+                        balls.push(ballBody);
+                        ball++;
+                    }              
+                    x++
+                }
+
+
                 // Create a plane
                 var groundShape = new CANNON.Plane();
                 var groundBody = new CANNON.Body({ mass: 0 });
@@ -492,25 +515,19 @@
                 var overlaping = 6
                 var overlapingz = -5
                 x = 1
+                y = 0
                 for(var i=0; i<5; i++){
                     for(var j = 0; j < x; j++ ){
                         // Create single sphere 1
-                        var ballShape = new CANNON.Sphere(0.2);
-                        var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
-                        var shootVelo = 50;
+                        var ballGeometry = new THREE.SphereGeometry(0.2, 32, 32);
                         var projector = new THREE.Projector();
-                        var ballBody = new CANNON.Body({ mass: 5, angularDamping: 0.6, material: physicsMaterial});
-                        ballBody.addShape(ballShape);
-                        ballBody.position.x += j/2.5 - overlaping
-                        ballBody.position.z += x/2.5 - overlapingz
-                        var ballMesh = new THREE.Mesh( ballGeometry, materials[ball] );
-                        world.addBody(ballBody);
-                        scene.add(ballMesh);
-                        balls.push(ballBody);
+                        var ballMesh = new THREE.Mesh( ballGeometry, materials[y] );
                         ballMeshes.push(ballMesh);
-                        ball++;
-                    }              
-                    x++
+                        scene.add(ballMesh);
+                        y++;
+                    }
+                    
+                    x++;
                 }
 
                 //Table
@@ -553,13 +570,9 @@
                 tableMesh.push(cuboidFourMesh);
                 scene.add(cuboidFourMesh);
 
-                renderer = new THREE.WebGLRenderer();
-                renderer.shadowMapEnabled = true;
-                renderer.shadowMapSoft = true;
-                renderer.setSize( window.innerWidth, window.innerHeight );
-                renderer.setClearColor( scene.fog.color, 1 );
-                document.body.appendChild( renderer.domElement );
-                window.addEventListener( 'resize', onWindowResize, false );
+
+
+                
             }
 
             function onWindowResize() {
@@ -567,6 +580,21 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize( window.innerWidth, window.innerHeight );
             }
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+            effect = new THREE.StereoEffect( renderer );
+            effect.shadowMapEnabled = true;
+            effect.shadowMapSoft = true;
+            effect.setSize( window.innerWidth, window.innerHeight );
+            /*renderer = new THREE.WebGLRenderer();
+            renderer.shadowMapEnabled = true;
+            renderer.shadowMapSoft = true;
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor( scene.fog.color, 1 );
+            document.body.appendChild( renderer.domElement );*/
+            window.addEventListener( 'resize', onWindowResize, false );
             
             var dt = 1/60;
             var timer = 0
@@ -628,7 +656,7 @@
 
                 controls.update( Date.now() - time );
                 scontrols.update()
-                renderer.render( scene, camera );
+                effect.render( scene, camera );
                 time = Date.now();
                 ++timer;
             }
